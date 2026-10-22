@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number System Converter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h1>Number System Converter</h1>
+            <p>Convert between Binary, Octal, Decimal and Hexadecimal</p>
+        </div>
+
+        <form action="/convert" method="POST" id="converterForm">
+
+            <div class="conversion-row">
+
+                <div class="form-group">
+                    <label>From</label>
+                    <select name="from_base" id="from_base">
+                        <option value="10" {% if from_base == 10 %}selected{% endif %}>Decimal</option>
+                        <option value="2" {% if from_base == 2 %}selected{% endif %}>Binary</option>
+                        <option value="8" {% if from_base == 8 %}selected{% endif %}>Octal</option>
+                        <option value="16" {% if from_base == 16 %}selected{% endif %}>Hexadecimal</option>
+                    </select>
+                </div>
+
+                <button type="button" class="swap-btn" onclick="swapBases()">⇄</button>
+
+                <div class="form-group">
+                    <label>To</label>
+                    <select name="to_base" id="to_base">
+                        <option value="2" {% if to_base == 2 %}selected{% endif %}>Binary</option>
+                        <option value="10" {% if to_base == 10 %}selected{% endif %}>Decimal</option>
+                        <option value="8" {% if to_base == 8 %}selected{% endif %}>Octal</option>
+                        <option value="16" {% if to_base == 16 %}selected{% endif %}>Hexadecimal</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label>Enter Number</label>
+                <input
+                    type="text"
+                    name="number"
+                    id="numberInput"
+                    value="{{ number or '' }}"
+                    placeholder="Enter a number..."
+                    required
+                >
+            </div>
+
+            <div class="button-row">
+                <button type="submit" class="convert-btn">Convert Number</button>
+                <button type="button" class="clear-btn" onclick="clearInput()">Clear</button>
+            </div>
+
+        </form>
+
+        <div class="result-box">
+            <h3>Conversion Result</h3>
+
+            {% if result is not none %}
+                <p class="result-number" id="resultNumber">{{ result }}</p>
+                <button type="button" class="copy-btn" onclick="copyResult()">Copy Result</button>
+            {% elif error %}
+                <p class="error-message">{{ error }}</p>
+            {% else %}
+                <p>Your converted number will appear here.</p>
+            {% endif %}
+        </div>
+
+        <div class="history-section">
+            <div class="history-header">
+                <h3>Conversion History</h3>
+
+                {% if history %}
+                <form action="/clear-history" method="POST">
+                    <button type="submit" class="history-clear-btn">Clear History</button>
+                </form>
+                {% endif %}
+            </div>
+
+            {% if history %}
+                {% for item in history %}
+                <div class="history-item">
+                    <div>
+                        <strong>{{ item.number }} → {{ item.result }}</strong>
+                        <p>{{ item.from_name }} to {{ item.to_name }}</p>
+                    </div>
+                    <span>{{ item.time }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-history">No conversions yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            <p>Number System Converter | Python + Flask</p>
+        </div>
+
+    </div>
+
+    <script>
+        function swapBases() {
+            let from = document.getElementById("from_base");
+            let to = document.getElementById("to_base");
+
+            let temp = from.value;
+            from.value = to.value;
+            to.value = temp;
+        }
+
+        function clearInput() {
+            document.getElementById("numberInput").value = "";
+
+            let result = document.querySelector(".result-box");
+            result.innerHTML = "<h3>Conversion Result</h3><p>Your converted number will appear here.</p>";
+        }
+
+        function copyResult() {
+            let result = document.getElementById("resultNumber");
+
+            if (result) {
+                navigator.clipboard.writeText(result.innerText)
+                    .then(function() {
+                        alert("Result copied successfully!");
+                    })
+                    .catch(function() {
+                        alert("Unable to copy the result.");
+                    });
+            }
+        }
+    </script>
+
+</body>
+</html>
